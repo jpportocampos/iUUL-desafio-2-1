@@ -1,14 +1,13 @@
 const fs = require('fs');
 
 import MainController from './controller/main-controller.js';
-import MainPresenter from './presenter/main-presenter.js';
 
 (function () {
     const controller = new MainController();
 
-    const presenter = new MainPresenter(controller);
+    let dataJSON = controller.leJSON();
 
-    presenter.run();
+    controller.validaJSON(dataJSON);
 })();
 
 let jsonPath = process.argv.pop();
