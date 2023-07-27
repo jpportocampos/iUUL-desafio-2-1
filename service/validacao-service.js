@@ -3,21 +3,11 @@ import { DateTime } from "luxon";
 export default class ValidacaoService {
     validarJSON(data) {
         let erros = "'erros': ["
-        if (!this.#validaNome(data.nome)) {
-             erros = erros + "{'campo':'nome', 'mensagem':'o nome precisa ter entre 5 e 60 caracteres'}_ "  
-        }
-        if (!this.#validaCPF(data.cpf)) {
-            erros = erros + "{'campo':'cpf', 'mensagem':'o cpf é inválido'}_ "
-        }
-        if (!this.#validaDataNascimento(data.dt_nascimento)) {
-            erros = erros + "{'campo':'dt_nascimento', 'mensagem':'O cliente deve possuir mais de 18 anos'}_ "
-        }
-        if (!this.#validaRendaMensal(data.renda_mensal)) {
-            erros = erros + "{'campo':'renda_mensal', 'mensagem':'O valor deve possuir duas casas decimais separadas por vírgula'}_ "
-        }
-        if (!this.#validaEstadoCivil(data.estado_civil)) {
-            erros = erros + "{'campo':'estado_civil', 'mensagem':'O estado civil deve ser C, S, V ou D'}]"
-        }
+        erros = erros + this.#validaNome(data.nome);
+        erros = erros + this.#validaCPF(data.cpf);
+        erros = erros + this.#validaDataNascimento(data.dt_nascimento);
+        erros = erros + this.#validaRendaMensal(data.renda_mensal);
+        erros = erros + this.#validaEstadoCivil(data.estado_civil);
 
         if (erros === "'erros': [") {
             erros = "[]";
@@ -31,58 +21,69 @@ export default class ValidacaoService {
     }
 
     #validaNome(nome) {
+        if (nome === "") {
+            return "{'campo':'nome', 'mensagem':'campo obrigatório ausente'}_ "
+        }
         if (nome.length < 5 || nome.length > 60) {
-            return false;
+            return "{'campo':'nome', 'mensagem':'o nome precisa ter entre 5 e 60 caracteres'}_ ";
         }
 
-        return true;
+        return "";
     }
 
     #validaCPF(cpf) {
+        if (cpf === "") {
+            return "{'campo':'cpf', 'mensagem':'campo obrigatório ausente'}_ "
+        }
         if (cpf.length === 11) {
             if (this.#validaDigitosCPF(cpf) && this.#validaJ(cpf) && this.#validaK(cpf)) {
-                return true;
+                return "";
+            } else {
+                return "{'campo':'cpf', 'mensagem':'o cpf é inválido'}_ "
             }
         } else {
-            return false;
+            return "{'campo':'cpf', 'mensagem':'o cpf precisa tere 11 dígitos'}_ ";
         }
     }
 
     #validaDataNascimento(dataNascimento) {
+        if (dataNascimento === "") {
+            return "{'campo':'dt_nascimento', 'mensagem':'campo obrigatório ausente'}_ "
+        }
         let data = DateTime.fromFormat(dataNascimento, "ddLLyyyy");
         let dataAtual = DateTime.now();
 
         var diffTempo = dataAtual.diff(data, ['months', 'days', 'years']).toObject();
 
         if (diffTempo.years < 18) {
-            return false;
+            return "{'campo':'dt_nascimento', 'mensagem':'O cliente deve possuir mais de 18 anos'}_ ";
         }
 
-        return true;
+        return "";
     }
 
     #validaRendaMensal(rendaMensal) {
-        if (rendaMensal === undefined) {
-            return true;
+        if (rendaMensal === "") {
+            return "";
         }
 
         if (rendaMensal[rendaMensal.length - 3] !== ',') {
-            return false;
+            return "{'campo':'renda_mensal', 'mensagem':'O valor deve possuir duas casas decimais separadas por vírgula'}_ ";
         }
 
-        return true;
+        return "";
     }
 
     #validaEstadoCivil(estadoCivil) {
-        if (estadoCivil === undefined) {
-            return true;
+        if (estadoCivil === "") {
+            return "";
         }
 
         if (estadoCivil.toUpperCase() !== 'C' && estadoCivil.toUpperCase() !== 'S' && estadoCivil.toUpperCase() !== 'V' && estadoCivil.toUpperCase() !== 'D') {
-            return false;
+            return "{'campo':'estado_civil', 'mensagem':'O estado civil deve ser C, S, V ou D'}]";
         }
 
-        return true;
+        return "";
     }
 
     #validaDigitosCPF(cpf) {

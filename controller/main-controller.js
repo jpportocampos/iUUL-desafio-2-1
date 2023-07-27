@@ -22,9 +22,9 @@ export default class MainController {
         return controller.formatJSON(data, erros);
     }
 
-    escreveJSON(result) {
+    escreveJSON(jsonPath, result) {
         const controller = new EscritaController();
 
-        controller.writeJSON(result);
+        controller.writeJSON(jsonPath, result);
     }
 }
