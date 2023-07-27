@@ -1,1 +1,0 @@
-"[{ 'dados': {'nome': 'João', 'cpf': '17924075720', 'dt_nascimento': '14092012', 'renda_mensal': '8387,96', 'estado_civil': 'S'},'erros': [{'campo':'nome', 'mensagem':'o nome precisa ter entre 5 e 60 caracteres'}, {'campo':'dt_nascimento', 'mensagem':'O cliente deve possuir mais de 18 anos'}] "
