@@ -1,31 +1,26 @@
-const fs = require('fs');
-
 import MainController from './controller/main-controller.js';
 
 (function () {
     const controller = new MainController();
 
-    let dataJSON = controller.leJSON();
+    let jsonPath = process.argv.pop();
 
-    controller.validaJSON(dataJSON);
+    let dataJSON = controller.leJSON(jsonPath);
+
+    let result = '[';
+
+    for (let index = 0; index < dataJSON.length; index++) {
+        let erros = controller.validaJSON(dataJSON[index]);
+        result = result + controller.formataJSON(dataJSON[index], erros);
+    }
+
+    if (result.endsWith("_")) {
+        result = result.replace(/_([^_]*)$/, ']' + '$1');
+    } else if (result === "[") {
+        result = "[]";
+    }
+
+    result = result.replaceAll('}_', '},');
+
+    controller.escreveJSON(result);
 })();
-
-let jsonPath = process.argv.pop();
-console.log(jsonPath);
-
-fs.readFile(jsonPath, (err, data) => {
-    if (err) throw err;
-    let pessoa = JSON.parse(data);
-    console.log(pessoa);
-});
-
-let pessoa = [ {"nome":"Pedro de Almeida", "cpf":"78444434051",
-"dt_nascimento":"15021996", "renda_mensal":"3584,12",
-"estado_civil":"S" } ];
-
-let data = JSON.stringify(pessoa, null, 2);
-
-fs.writeFile(jsonPath, data, (err) => {
-    if (err) throw err;
-    console.log('Data written to file');
-});

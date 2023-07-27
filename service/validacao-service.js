@@ -1,18 +1,41 @@
+import { DateTime } from "luxon";
+
 export default class ValidacaoService {
     validarJSON(data) {
-        for (let index = 0; index < data.length; index++) {
-            this.#validaNome(data[index].nome);
-            this.#validaCPF(data[index].cpf);
-            this.#validaDataNascimento(data[index].dt_nascimento);
-            this.#validaRendaMensal(data[index].renda_mensal);
-            this.#validaEstadoCivil(data[index].estado_civil);
+        let erros = "'erros': ["
+        if (!this.#validaNome(data.nome)) {
+             erros = erros + "{'campo':'nome', 'mensagem':'o nome precisa ter entre 5 e 60 caracteres'}_ "  
         }
+        if (!this.#validaCPF(data.cpf)) {
+            erros = erros + "{'campo':'cpf', 'mensagem':'o cpf é inválido'}_ "
+        }
+        if (!this.#validaDataNascimento(data.dt_nascimento)) {
+            erros = erros + "{'campo':'dt_nascimento', 'mensagem':'O cliente deve possuir mais de 18 anos'}_ "
+        }
+        if (!this.#validaRendaMensal(data.renda_mensal)) {
+            erros = erros + "{'campo':'renda_mensal', 'mensagem':'O valor deve possuir duas casas decimais separadas por vírgula'}_ "
+        }
+        if (!this.#validaEstadoCivil(data.estado_civil)) {
+            erros = erros + "{'campo':'estado_civil', 'mensagem':'O estado civil deve ser C, S, V ou D'}]"
+        }
+
+        if (erros === "'erros': [") {
+            erros = "[]";
+        } else if (erros.endsWith("_ ")) {
+            erros = erros.replace(/_([^_]*)$/, ']' + '$1');
+        }
+
+        erros = erros.replaceAll('}_', '},');
+
+        return erros;
     }
 
     #validaNome(nome) {
         if (nome.length < 5 || nome.length > 60) {
             return false;
         }
+
+        return true;
     }
 
     #validaCPF(cpf) {
@@ -26,7 +49,7 @@ export default class ValidacaoService {
     }
 
     #validaDataNascimento(dataNascimento) {
-        let data = DateTime.fromFormat(dataNascimento, "DDMMAAAA");
+        let data = DateTime.fromFormat(dataNascimento, "ddLLyyyy");
         let dataAtual = DateTime.now();
 
         var diffTempo = dataAtual.diff(data, ['months', 'days', 'years']).toObject();
@@ -55,7 +78,7 @@ export default class ValidacaoService {
             return true;
         }
 
-        if (estadoCivil.toUpperCase() !== 'C' || estadoCivil.toUpperCase() !== 'S' || estadoCivil.toUpperCase() !== 'V' || estadoCivil.toUpperCase() !== 'D') {
+        if (estadoCivil.toUpperCase() !== 'C' && estadoCivil.toUpperCase() !== 'S' && estadoCivil.toUpperCase() !== 'V' && estadoCivil.toUpperCase() !== 'D') {
             return false;
         }
 
